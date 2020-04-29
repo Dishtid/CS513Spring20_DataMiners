@@ -1,7 +1,4 @@
 
-#  First Name      : EMAN
-#  Last Name       : ALOFI
-#  Id              : 10444865
 #  purpose         : 1-Applying KNN alogrithm to Predcit 'STATUS'.
 #                  : 2- Apply data visulazation for the STATUS vlaues from the originial dataset and STATUS values from KNN predicition
 #                  :  3- caculate the accuracey 
