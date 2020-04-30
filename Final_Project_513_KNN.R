@@ -1,4 +1,3 @@
-
 #  purpose         : 1-Applying KNN alogrithm to Predcit 'STATUS'.
 #                  : 2- Apply data visulazation for the STATUS vlaues from the originial dataset and STATUS values from KNN predicition
 #                  :  3- caculate the accuracey 
@@ -29,7 +28,7 @@ normalize <- function(x) {
   return ((x - min(x)) / (max(x) - min(x))) }
 
 
-df_n <- as.data.frame(lapply(df[,c(8,17)], normalize)) # I did normalization for the 8, and 17 columns that helps me in 'STATUS' preduction.
+df_n <- as.data.frame(lapply(df[,c(2,3)], normalize)) # I did normalization for the 8, and 17 columns that helps me in 'STATUS' preduction.
                                                        # These coulmns are 8 which is 'JOB_SATISFACTION' & 17 which is 'PERFORMANCE_RATING'
 
 idx<-sort(sample(nrow(df),as.integer(.70*nrow(df)))) # train 70% of the data 
@@ -105,4 +104,3 @@ fp2 <- table$t[1,2]
 accuracey <- (((tp1+tn1)/(tp1+fn1+fp1+tn1))/((tp2+tn2)/(tp2+fn2+fp2+tn2)))/2
 
 accuracey # The result of Accuracey 
-
