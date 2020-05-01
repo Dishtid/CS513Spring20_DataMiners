@@ -8,7 +8,7 @@ remove(list=ls())
 # Called the required library 
 library(kknn)
 library(class)
-
+ 
 
 # read the CSV file 
 file <- file.choose()
@@ -23,13 +23,21 @@ colSums(is.na(df))
 
 
 
+# Find the most appropraite feature for prediction the status of emplpoyss 
+library(corrplot)
+correlation <- cor(df[,c(2,3,4,8,9,14,17)])
+corrplot(correlation,method = "circle")
+
+# we found that column 2 and 3  which are ANNUAL_RATE  and HRLY_RATE are the most correlated features that can help us in better prediction the status of employees 
 # normalizing function 
 normalize <- function(x) {
-  return ((x - min(x)) / (max(x) - min(x))) }
+        return ((x - min(x)) / (max(x) - min(x))) }
 
+# we did normalization for the 2, and 3 columns that helps  in 'STATUS' preduction.
+# We choce these columns based on  caclulatring the co-depandency between the features by using Correlation matrix.
 
-df_n <- as.data.frame(lapply(df[,c(2,3)], normalize)) # I did normalization for the 8, and 17 columns that helps me in 'STATUS' preduction.
-                                                       # These coulmns are 8 which is 'JOB_SATISFACTION' & 17 which is 'PERFORMANCE_RATING'
+df_n <- as.data.frame(lapply(df[,c(2,3)], normalize)) 
+
 
 idx<-sort(sample(nrow(df),as.integer(.70*nrow(df)))) # train 70% of the data 
 training <- df_n[idx, ] # train 70% of the data 
@@ -66,17 +74,17 @@ barplot(xtabs(~df$STATUS),  ylab = "Number of employees", xlab = "Employees' Sta
 table(df$STATUS) # to show the exact number of Active and terminated employees
 # barplot for STATUS prediction from KNN prediction 
 
- barplot(xtabs(~STATUS_test_pred),  ylab = "Number of employees", xlab = "Employees' Status" , main ="Employee STATUS resulting from KNN",
-col = c("#69b3a2","#a6a6a6"), border = "white",
-legend.text = c("A:Active", "T:Terminated"),
-args.legend=list(cex=0.75,x="topright"))
- 
+barplot(xtabs(~STATUS_test_pred),  ylab = "Number of employees", xlab = "Employees' Status" , main ="Employee STATUS resulting from KNN",
+        col = c("#69b3a2","#a6a6a6"), border = "white",
+        legend.text = c("A:Active", "T:Terminated"),
+        args.legend=list(cex=0.75,x="topright"))
+
 table(STATUS_test_pred) # to show the exact number of Active and terminated employees.
 
 #Thus,as both graph are shown Active employees is always higher than terminated once. 
 #So, we can assume that our model  is right in predciting the employees status.
- 
- 
+
+
 # Accuracy 
 
 # Evalute the accuracey by using 'gmodels'library that has a 'CrossTable' function that helps finding out the accuracy.
@@ -87,7 +95,7 @@ install.packages("gmodels")
 require("gmodels")
 library("gmodels")
 table <- CrossTable(x = test_label, y = STATUS_test_pred,
-           prop.chisq = FALSE) 
+                    prop.chisq = FALSE) 
 
 # Caculate the accuracy by  posititve (TP), true negative (TN), false negative (FN) and false positive (FP) for each category or level 1 'A' or 2 'T'
 
