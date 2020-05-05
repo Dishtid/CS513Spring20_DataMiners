@@ -1,3 +1,7 @@
+# # # # # # # # # # # # # # # # #
+#  Algorithm : Neural Networks  #
+# # # # # # # # # # # # # # # # #
+
 # Clearing object environment
 rm(list=ls())
 
