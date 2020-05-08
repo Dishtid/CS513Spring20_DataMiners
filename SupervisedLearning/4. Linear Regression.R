@@ -1,6 +1,6 @@
-# # # # # # # # # # # # # # #
-#  Algorithm : Naive Bayes  #
-# # # # # # # # # # # # # # #
+# # # # # # # # # # # # # # # # # #
+#  Algorithm : Linear Regression  #
+# # # # # # # # # # # # # # # # # #
 
 # Clearing object environment
 rm(list=ls())
