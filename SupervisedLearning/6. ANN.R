@@ -4,29 +4,42 @@
 
 # Clearing object environment
 rm(list=ls())
+dev.off()
 
-#for debugging
-NA_preproc
+# For debugging
+#NA_preproc
 
-# Load Wisconsin Breast cancer data file CSV
+# Load data file CSV
 csvInput <- file.choose()
 dataset <- read.csv(csvInput)
-View(dataset)
 
+View(dataset)
 str(dataset)
 head(dataset) 
 
 any(is.na(dataset))
-data <-dataset
+data <- dataset
 
-data<-na.omit(data)
-any(is.na(data))
-View(data)
-
+# Install required packages
+#install.packages("caTools")
 library(dplyr)
+library(caret)
+library(neuralnet)
 
-data_norm<-select(data, ANNUAL_RATE, HRLY_RATE, JOB_SATISFACTION, AGE, PREVYR_1, PREVYR_2, PREVYR_3, PREVYR_4, PREVYR_5)
-View(data_norm)
+# Choose columns
+data<-select(data, ANNUAL_RATE, HRLY_RATE, JOB_SATISFACTION, AGE, STATUS)
+
+# factorize the status as A=1 and T=0
+data$STATUS <- factor(data$STATUS, labels = c(1,0))
+#data$STATUS <- as.numeric(data$STATUS)
+View(data)
+str(data)
+
+# Normalize
+data_norm <- select(data, ANNUAL_RATE, HRLY_RATE, JOB_SATISFACTION, AGE)
+
+data_norm<-data.frame(lapply(data_norm,as.numeric))
+str(data_norm)
 
 maxs<-apply(data, 2, max)
 maxs
@@ -34,61 +47,48 @@ maxs
 mins<-apply(data, 2, min)
 mins
 
-#normalize
-#scaled.data<-scale(data, center=mins, scale=maxs-mins)
 scaled.data<-as.data.frame(apply(data_norm[,1:ncol(data_norm)],2,function(x) (x - min(x))/(max(x)-min(x))))
+str(scaled.data)
 head(scaled.data)
 
 #combine data
 final<-data.frame(data, scaled.data)
 View(final)
 
-final<-select(final, EMP_ID,ANNUAL_RATE.1, HRLY_RATE.1,JOBCODE,ETHNICITY,SEX,MARITAL_STATUS, JOB_SATISFACTION.1, AGE.1, NUMBER_OF_TEAM_CHANGED,REFERRAL_SOURCE,HIRE_MONTH,REHIRE,TERMINATION_YEAR,IS_FIRST_JOB,TRAVELLED_REQUIRED, PERFORMANCE_RATING, DISABLED_EMP, DISABLED_VET, EDUCATION_LEVEL, STATUS,JOB_GROUP,PREVYR_1.1, PREVYR_2.1, PREVYR_3.1, PREVYR_4.1, PREVYR_5.1)
+final<-select(final, ANNUAL_RATE.1, HRLY_RATE.1, JOB_SATISFACTION.1, AGE.1, STATUS)
 View(final)
 
 #Categorize data
-install.packages("caTools")
-library(caTools)
+index<- seq (1,nrow(data),by=5)
+train<- data[-index,]
+test<- data[index,]
 
-index<-sample.split(final$STATUS, SplitRatio = 0.7)
-#train<-subset(final, split==T)
-#test<-subset(final, split==F)
-
-#index <- seq (1,nrow(final),by=5)
-test<- final[index,]
-train<-final[-index,]
-
-library(neuralnet)
-cols<-names(train)
+cols <- colnames(data)
 cols
 
-f<-as.formula(paste("STATUS~",paste(cols[!cols %in% "STATUS"], collapse = "+")))
-f
-
-#choose only valid columns with unique values
-validcols <- sapply(final, function(f)length(unique(final[!is.na(final)])) > 1)
-View(final)
-
-final <- final[,validcols]
-str(final)
-
-final2<-final
-final2<-final[,-(5:7), drop=FALSE]
-final3<-final2[,-(8:10), drop=FALSE]
-final4<-final3[,-(9:10), drop=FALSE]
-final5<-final4[,-(10:14), drop=FALSE]
-final6<-final5[,-(7), drop=FALSE]
-str(final6)
-
-
-m <- model.matrix( 
-  ~ EMP_ID + ANNUAL_RATE.1 + HRLY_RATE.1 + JOBCODE + JOB_SATISFACTION.1 + AGE.1 + TERMINATION_YEAR + PERFORMANCE_RATING + PREVYR_1.1 + PREVYR_2.1 + PREVYR_3.1 + PREVYR_4.1 + PREVYR_5.1, data = final)
-m<-m[,-1 ,drop=FALSE]
-head(m)
-
-
-nn<-neuralnet(final6, data=m, hidden=15, exclude = NULL, threshold=0.04, stepmax=1e7)
+# Train the data
+nn <- neuralnet(STATUS ~ ., data=train, hidden=4, exclude = NULL, threshold=0.04)
 plot(nn)
 
-pred <-predict(model , test)
-print(pred)
+dev.off();
+
+nn1 <- neuralnet(STATUS ~ ., data=test, hidden=4, exclude = NULL, threshold=0.04)
+plot(nn1)
+
+# Predict
+pred <- predict(nn, test)
+View(pred)
+
+# Fatorize the prediction
+pred_cat <- ifelse(pred<0.5,0,1)
+View(pred_cat)
+View(test$STATUS)
+
+# Error rate for test data
+wrong<- (test$STATUS!=pred_cat)
+error_rate<-sum(wrong)/length(wrong)
+error_rate
+
+# Accuracy for test data
+accuracy <- 1-error_rate
+accuracy
