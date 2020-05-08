@@ -46,12 +46,8 @@ dataset$PREVYR_2 <- as.factor(dataset$PREVYR_2)
 dataset$PREVYR_3 <- as.factor(dataset$PREVYR_3)
 dataset$PREVYR_4 <- as.factor(dataset$PREVYR_4)
 dataset$PREVYR_5 <- as.factor(dataset$PREVYR_5)
-#Convert all columns to factor datatype
-#new_data<-transform(dataset, F1 = as.factor(F1),F2 = as.factor(F2),F3 = as.factor(F3),F4 = as.factor(F4),F5 = as.factor(F5),F6 = as.factor(F6),F7 = as.factor(F7),F8 = as.factor(F8),F9 = as.factor(F9),Class = as.factor(Class))
 
-# Convert 2,4 in class to Benign and Malignant
 dataset$STATUS <- factor(dataset$STATUS, levels = c("0","1"),labels = c("T", "A"))
-#new_data$Class<- factor(new_data$Class , levels = c("2","4") , labels = c("Benign","Malignant"))
 
 dataset<-na.omit(dataset)
 #Split training and testing(training = 75% , testing = 25%)
@@ -68,8 +64,6 @@ testing<-dataset[index,]
 randomForest_class<-randomForest(STATUS~.,data = training, importance=TRUE, ntree=5000)
 summary(randomForest_class)
 plot(randomForest_class)
-
-# Predict whether the new testing value is Benign or Malignant
 randomForest_predict<-predict( randomForest_class ,testing , type="class" )
 
 randomForest_predict
