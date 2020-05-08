@@ -48,7 +48,6 @@ dataset$PREVYR_4 <- as.factor(dataset$PREVYR_4)
 dataset$PREVYR_5 <- as.factor(dataset$PREVYR_5)
 
 dataset$STATUS <- factor(dataset$STATUS, levels = c("0","1"),labels = c("T", "A"))
-#new_data$Class<- factor(new_data$Class , levels = c("2","4") , labels = c("Benign","Malignant"))
 
 dataset<-na.omit(dataset)
 #Split training and testing(training = 75% , testing = 25%)
